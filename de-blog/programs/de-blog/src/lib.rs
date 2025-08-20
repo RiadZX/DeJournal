@@ -18,4 +18,8 @@ pub mod de_blog {
     ) -> Result<()> {
         instructions::initialize_blog(ctx, title, description)
     }
+
+    pub fn create_post(ctx: Context<InitializePost>, title: String, body: String) -> Result<()> {
+        instructions::initialize_post(ctx, title, body)
+    }
 }

@@ -15,6 +15,7 @@ pub fn initialize_blog(
         return Err(DeBlogError::DescriptionTooLong.into());
     }
 
+    ctx.accounts.blog.author = ctx.accounts.authority.key();
     ctx.accounts.blog.title = title;
     ctx.accounts.blog.description = description;
     ctx.accounts.blog.bump = ctx.bumps.blog;

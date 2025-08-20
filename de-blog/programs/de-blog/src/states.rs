@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-pub const MAX_BLOG_TITLE_LENGTH: usize = 256;
-pub const MAX_BLOG_DESCRIPTION_LENGTH: usize = 1024;
-pub const MAX_POST_BODY_LENGTH: usize = 65536;
+pub const MAX_BLOG_TITLE_LENGTH: usize = 32;
+pub const MAX_BLOG_DESCRIPTION_LENGTH: usize = 256;
+pub const MAX_POST_BODY_LENGTH: usize = 512;
 
 pub const BLOG_SEED: &str = "DEBLOG";
 pub const POST_SEED: &str = "POST";
@@ -12,6 +12,7 @@ pub const POST_SEED: &str = "POST";
 #[account]
 #[derive(InitSpace)]
 pub struct Blog {
+    pub author: Pubkey,
     #[max_len(MAX_BLOG_TITLE_LENGTH)]
     pub title: String,
     #[max_len(MAX_BLOG_DESCRIPTION_LENGTH)]

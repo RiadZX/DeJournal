@@ -8,4 +8,6 @@ pub enum DeBlogError {
     DescriptionTooLong,
     #[msg("The provided body is too long")]
     BodyTooLong,
+    #[msg("The provided author does not match the blog author")]
+    InvalidAuthor,
 }
