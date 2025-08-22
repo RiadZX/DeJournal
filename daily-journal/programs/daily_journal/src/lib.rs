@@ -24,13 +24,7 @@ pub mod daily_journal {
         message: String,
     ) -> Result<()> {
         instructions::create_entry::create_entry_handler(
-            ctx,
-            mood,
-            year,
-            month,
-            day,
-            weather,
-            message,
+            ctx, mood, year, month, day, weather, message,
         )
     }
 
@@ -43,7 +37,7 @@ pub mod daily_journal {
         instructions::edit_entry::edit_entry_handler(ctx, mood, weather, message)
     }
 
-    pub fn delete_entry(ctx: Context<DeleteEntry>, year: u16, month: u8, day: u8) -> Result<()> {
+    pub fn delete_entry(ctx: Context<DeleteEntry>) -> Result<()> {
         instructions::delete_entry::delete_entry_handler(ctx)
     }
 }

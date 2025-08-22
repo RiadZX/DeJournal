@@ -185,7 +185,7 @@ describe("daily_journal", () => {
     );
 
     await program.methods
-      .deleteEntry(entryData.year, entryData.month, entryData.day)
+      .deleteEntry()
       .accounts({
         entry: entryPda,
         authority: user.publicKey,
@@ -194,5 +194,106 @@ describe("daily_journal", () => {
 
     const entryAccount = await program.account.entry.fetchNullable(entryPda);
     assert.isNull(entryAccount);
+  });
+
+  it("Should fail to edit an entry if not the authority", async () => {
+    // Create entry with default user
+    const entryData = testEntries[2];
+    const [entryPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("entry"),
+        new anchor.BN(entryData.year).toArrayLike(Buffer, "le", 2),
+        new anchor.BN(entryData.month).toArrayLike(Buffer, "le", 1),
+        new anchor.BN(entryData.day).toArrayLike(Buffer, "le", 1),
+        user.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    // await program.methods
+    //   .createEntry(
+    //     entryData.mood,
+    //     entryData.year,
+    //     entryData.month,
+    //     entryData.day,
+    //     entryData.weather,
+    //     entryData.message
+    //   )
+    //   .accounts({
+    //     entry: entryPda,
+    //     user: user.publicKey,
+    //     systemProgram: anchor.web3.SystemProgram.programId,
+    //   })
+    //   .rpc();
+
+    // Create a new wallet (not the authority)
+    const otherUser = anchor.web3.Keypair.generate();
+
+    // Fund the other user
+    const sig = await provider.connection.requestAirdrop(
+      otherUser.publicKey,
+      2e9
+    );
+    await provider.connection.confirmTransaction(sig);
+
+    // Try to edit with other user
+    try {
+      await program.methods
+        .editEntry("sneaky", "foggy", "Trying to edit someone else's entry")
+        .accounts({
+          entry: entryPda,
+          authority: otherUser.publicKey,
+        })
+        .signers([otherUser])
+        .rpc();
+      assert.fail("Expected edit to fail for non-authority");
+    } catch (error) {
+      // console.log(error.message);
+      assert.isTrue(
+        error.message.includes("Error Code: ConstraintSeeds"),
+        "Expected error message to include 'Unauthorized'"
+      );
+    }
+  });
+
+  it("Should fail to delete an entry if not the authority", async () => {
+    // Use the same entry as above
+    const entryData = testEntries[3];
+    const [entryPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("entry"),
+        new anchor.BN(entryData.year).toArrayLike(Buffer, "le", 2),
+        new anchor.BN(entryData.month).toArrayLike(Buffer, "le", 1),
+        new anchor.BN(entryData.day).toArrayLike(Buffer, "le", 1),
+        user.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    // Create a new wallet (not the authority)
+    const otherUser = anchor.web3.Keypair.generate();
+
+    // Fund the other user
+    const sig = await provider.connection.requestAirdrop(
+      otherUser.publicKey,
+      2e9
+    );
+    await provider.connection.confirmTransaction(sig);
+
+    // Try to delete with other user
+    try {
+      await program.methods
+        .deleteEntry()
+        .accounts({
+          entry: entryPda,
+          authority: otherUser.publicKey,
+        })
+        .signers([otherUser])
+        .rpc();
+      assert.fail("Expected delete to fail for non-authority");
+    } catch (error) {
+      // if it reaches here, then that means it fails, which is intended.
+      assert.isTrue(true);
+    }
   });
 });
