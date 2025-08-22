@@ -8,4 +8,6 @@ pub enum JournalError {
     InvalidMonth,
     #[msg("Invalid day.")]
     InvalidDay,
+    #[msg("Unauthorized user.")]
+    Unauthorized,
 }

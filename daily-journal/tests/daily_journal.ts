@@ -123,7 +123,6 @@ describe("daily_journal", () => {
       assert.fail("Expected transaction to fail");
     } catch (error) {
       should_fail = "Failed";
-      console.log(error);
       assert.isTrue(
         error.message.includes("InvalidMonth"),
         "Expected error message to include 'InvalidMonth'"
@@ -134,5 +133,66 @@ describe("daily_journal", () => {
       "Failed",
       "Should fail when using invalid date"
     );
+  });
+
+  it("Edits an entry", async () => {
+    const entryData = testEntries[0];
+    const [entryPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("entry"),
+        new anchor.BN(entryData.year).toArrayLike(Buffer, "le", 2),
+        new anchor.BN(entryData.month).toArrayLike(Buffer, "le", 1),
+        new anchor.BN(entryData.day).toArrayLike(Buffer, "le", 1),
+        user.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    const newMood = "excited";
+    const newWeather = "windy";
+    const newMessage = "A new day, a new adventure!";
+
+    await program.methods
+      .editEntry(newMood, newWeather, newMessage)
+      .accounts({
+        entry: entryPda,
+        authority: user.publicKey,
+      })
+      .rpc();
+
+    const entryAccount = await program.account.entry.fetch(entryPda);
+
+    assert.ok(entryAccount.authority.equals(user.publicKey));
+    assert.deepStrictEqual(entryAccount.mood, newMood);
+    assert.equal(entryAccount.year, entryData.year);
+    assert.equal(entryAccount.month, entryData.month);
+    assert.equal(entryAccount.day, entryData.day);
+    assert.deepStrictEqual(entryAccount.weather, newWeather);
+    assert.equal(entryAccount.message, newMessage);
+  });
+
+  it("Deletes an entry", async () => {
+    const entryData = testEntries[0];
+    const [entryPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("entry"),
+        new anchor.BN(entryData.year).toArrayLike(Buffer, "le", 2),
+        new anchor.BN(entryData.month).toArrayLike(Buffer, "le", 1),
+        new anchor.BN(entryData.day).toArrayLike(Buffer, "le", 1),
+        user.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
+
+    await program.methods
+      .deleteEntry(entryData.year, entryData.month, entryData.day)
+      .accounts({
+        entry: entryPda,
+        authority: user.publicKey,
+      })
+      .rpc();
+
+    const entryAccount = await program.account.entry.fetchNullable(entryPda);
+    assert.isNull(entryAccount);
   });
 });
