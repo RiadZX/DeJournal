@@ -8,11 +8,14 @@ skip-lint = false
 [programs.localnet]
 daily_journal = "GbEwy5B5fr4uZGAVr6GhouFQVUuDvqiscQEBeFb94wSn"
 
+[programs.devnet]
+daily_journal = "GbEwy5B5fr4uZGAVr6GhouFQVUuDvqiscQEBeFb94wSn"
+
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
