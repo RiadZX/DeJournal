@@ -1,7 +1,7 @@
-de-blog/.anchor
-de-blog/.DS_Store
-de-blog/target
-de-blog/**/*.rs.bk
-de-blog/node_modules
-de-blog/test-ledger
-de-blog/.yarn
+daily-journal/.anchor
+daily-journal/.DS_Store
+daily-journal/target
+daily-journal/**/*.rs.bk
+daily-journal/node_modules
+daily-journal/test-ledger
+daily-journal/.yarn
