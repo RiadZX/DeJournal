@@ -5,7 +5,6 @@ import {
   type Address,
   createTransaction,
   getBase58Decoder,
-  getBase58Encoder,
   signAndSendTransactionMessageWithSigners,
 } from 'gill'
 import { toast } from 'sonner'
@@ -18,7 +17,6 @@ import {
   getDeleteEntryInstruction,
   getEditEntryInstruction,
   DAILY_JOURNAL_PROGRAM_ADDRESS,
-  ENTRY_DISCRIMINATOR,
 } from '../../../clients/js/src/generated'
 
 // Get all journal entries for a given authority
