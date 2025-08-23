@@ -1,93 +1,85 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/idxPpgnz)
-![School of Solana](https://github.com/Ackee-Blockchain/school-of-solana/blob/master/.banner/banner.png?raw=true)
+# Project Description
 
-## 📚Solana Program
-We are about halfway through the course, and you already have some experience with programming on Solana. It is time to create something on your own! You will be building a dApp that will serve as the culmination of everything you have learned so far. Feel free to implement whatever comes to your mind, (as long as it passes the requirements).
+**Deployed Frontend URL:** [TODO: Link to your deployed frontend]
 
-**This does not mean that the School of Solana is coming to an end just yet!** There are still several exciting lectures ahead, as well as one security related task.
+**Solana Program ID:** GbEwy5B5fr4uZGAVr6GhouFQVUuDvqiscQEBeFb94wSn
 
-### Task details
-This task consists of two parts:
-1. **Core of your dApp**
-    - A deployed Solana program.
-2. **Frontend**
-    - A simple frontend to interact with the dApp.
+## Project Overview
 
-### Requirements
-- An Anchor program deployed on **Devnet** or **Mainnet**.
-- The Anchor program must use a PDA (Program Derived Address).
-- At least one TypeScript **test** for each Anchor program instruction. These tests should cover both **happy** and **unhappy** (intentional error-triggering) scenarios.
-- A simple **frontend** deployed using your preferred provider (for more info, check below).
-- A filled out **PROJECT_DESCRIPTION.md** file.
+### Description
+The Daily Journal dApp is a decentralized application built on the Solana blockchain that enables users to securely create, manage, and store personal journal entries. Each entry is associated with a specific date, allowing users to record their mood, weather conditions, and a detailed message for that day. The dApp ensures data ownership and integrity by tying each entry to the user's Solana wallet.
 
-### Ideas
-We highly recommend starting with something simple. Take time to think through your project and work on it in iterations. Do not try to implement everything at once!
+### Key Features
+- **Create Entry**: Users can create a new journal entry for a specific year, month, and day, including their mood, the weather, and a message.
+- **Edit Entry**: Existing journal entries can be updated, allowing users to modify their mood, weather, and message for a given date.
+- **Delete Entry**: Users have the ability to permanently remove their journal entries.
+- **Date Validation**: The program includes validation to ensure that entries are created for valid months (1-12) and days (1-31).
+- **Ownership Control**: All operations (create, edit, delete) are secured, ensuring that only the original creator of an entry can modify or remove it.
 
-Below is a list of few ideas to get you started:
-- **Social app**
-    - Instagram
-    - Giphy
-    - Friendtech
-    - Spotify
-- **Blog**
-- **Voting** ([D21 - Janeček method](https://www.ih21.org/en/guidelines))
-- **DeFi**
-    - Crowdfunding
-    - Raffles
-    - Escrow
-    - Tipping
-    - Lending ([Save Documentation](https://docs.save.finance/))
-    - Liquid Staking ([Marinade Documentation](https://docs.marinade.finance/))
-    - Data Query with Pyth ([Pyth Documentation](https://docs.pyth.network/price-feeds))
-    - AMM ([Raydium Documentation](https://raydium.gitbook.io/raydium/))
-- **Gaming**
-    - Browser Game ([Gaming on Solana](https://solanacookbook.com/gaming/nfts-in-games.html#nfts-in-games))
+### How to Use the dApp
+1. **Connect Wallet**: Connect your Solana wallet to the dApp.
+2. **Create a Journal Entry**: Select a date and input your mood, the weather, and your message for the day. Submit the transaction to create your entry.
+3. **View/Access Entries**: Your entries will be stored on-chain, accessible via your wallet and the specific date.
+4. **Edit an Entry**: To modify an existing entry, select the date of the entry, make your desired changes to the mood, weather, or message, and submit the update transaction.
+5. **Delete an Entry**: To remove an entry, select the date of the entry and initiate the delete transaction.
 
-### Deadline
-The deadline for this task is **Wednesday, August 27th, at 23:59 UTC**.
->[!CAUTION]
->Note that we will not accept submissions after the deadline.
+## Program Architecture
+The Daily Journal dApp utilizes a straightforward Solana program architecture centered around a single account type, `Entry`, and three core instructions. Program Derived Addresses (PDAs) are employed to ensure that each user has unique and deterministic journal entries for every specific date.
 
-### Submission
-There are two folders, one for the Anchor project, and one for the frontend. Push your changes to the **main** branch of **this** repository.
+### PDA Usage
+The program uses Program Derived Addresses (PDAs) to create unique and deterministic `Entry` accounts for each user for a given date.
 
->[!IMPORTANT]
->It is essential that you fill out the `PROJECT_DESCRIPTION.md` template completely and accurately. This document will be used by AI for the initial evaluation, so provide detailed information about your project, including working links, clear descriptions, and technical implementation details.
+**PDAs Used:**
+- **Entry PDA**: Derived from the seeds `[b"entry", year.to_le_bytes(), month.to_le_bytes(), day.to_le_bytes(), user.key()]`. This ensures that each user can have only one journal entry per specific date (year, month, day), and that these entries are uniquely owned and controlled by the `user`'s public key.
 
-### Evaluation
-The evaluation process is based on the **requirements**. If you meet the requirements, you pass the task!
+### Program Instructions
+**Instructions Implemented:**
+- `create_entry`: This instruction is responsible for initializing a new `Entry` account on the Solana blockchain. It takes parameters for `mood`, `year`, `month`, `day`, `weather`, and `message`. It includes validation to ensure the `month` is between 1 and 12, and the `day` is between 1 and 31.
+- `edit_entry`: This instruction allows the modification of an existing `Entry` account. It updates the `mood`, `weather`, and `message` fields of a specific entry. Crucially, it includes a `has_one = authority` constraint to ensure that only the original `authority` (creator) of the entry can edit it.
+- `delete_entry`: This instruction facilitates the removal of an `Entry` account from the blockchain. Upon successful execution, the lamports (Solana's native token) held by the `Entry` account are returned to the `authority` (creator). Similar to `edit_entry`, it enforces `has_one = authority` to prevent unauthorized deletion.
 
->[!NOTE]
->We have a record number of participants this season, so the first round of evaluations will be conducted by AI to verify requirements before manual review. AI can make mistakes. If you believe you fulfilled all requirements but weren't graded correctly, please create a support ticket and we will resolve the issue.
+### Account Structure
+```rust
+#[account]
+#[derive(InitSpace)]
+pub struct Entry {
+    pub authority: Pubkey,     // The public key of the user who owns this journal entry
+    #[max_len(25)]
+    pub mood: String,          // Describes the user's mood for the day (max 25 characters)
+    pub year: u16,             // The year of the journal entry
+    pub month: u8,             // The month of the journal entry (1-12)
+    pub day: u8,               // The day of the journal entry (1-31)
+    #[max_len(25)]
+    pub weather: String,       // Describes the weather for the day (max 25 characters)
+    #[max_len(280)]
+    pub message: String,       // The main content of the journal entry (max 280 characters)
+}
+```
 
->[!CAUTION]
->We expect original work that demonstrates your understanding and creativity. While you may draw inspiration from examples covered in lessons and tasks, **direct copying is not acceptable**. If you choose to build upon an example from the School of Solana materials, you must significantly expand it with additional features, instructions, and functionality to showcase your learning progress. 
+## Testing
 
-### Example Workflow
-Let's say you are going to implement the Twitter dApp as the Solana Program. Here's how the steps could look:
+### Test Coverage
+The dApp includes a comprehensive test suite written in TypeScript, covering both successful operations (happy path) and expected failure scenarios (unhappy path) to ensure the program's robustness and security.
 
-**1.** Implement Twitter dApp using the Anchor framework.
+**Happy Path Tests:**
+- **Create Entry**: Verifies that new journal entries are successfully created with the correct data and associated with the correct authority. This includes creating multiple entries for different dates.
+- **Edit Entry**: Confirms that existing entries can be updated by their respective authorities, and that the changes are correctly reflected on-chain.
+- **Delete Entry**: Ensures that entries can be successfully deleted by their authorities, and that the account is closed.
 
-**2.** Test the Twitter dApp using the Anchor framework.
+**Unhappy Path Tests:**
+- **Invalid Date**: Tests that `create_entry` fails when an invalid month (e.g., month 13) or day (e.g., day 0 or 32) is provided, returning the appropriate error (`InvalidMonth` or `InvalidDay`).
+- **Unauthorized Edit**: Verifies that `edit_entry` fails if a user attempts to modify an entry they do not own, returning a `ConstraintSeeds` error.
+- **Unauthorized Delete**: Confirms that `delete_entry` fails if a user attempts to delete an entry they do not own, returning a `ConstraintSeeds` error.
 
-**3.** Deploy the Twitter dApp on the Solana Devnet.
+### Running Tests
+```bash
+# Install dependencies (if not already installed)
+yarn install
 
-**4.** Using the create solana dapp template, implement frontend for the Twitter dApp.
+# Run the tests
+anchor test
+```
 
-**5.** Publish Frontend using [Vercel](https://vercel.com).
+### Additional Notes for Evaluators
 
-**6.** Fill out the PROJECT_DESCRIPTION.md template.
-
-**7.** Submit the Twitter dApp using GitHub Classroom.
-
-### Useful Links
-- [Vercel](https://vercel.com)
-- [Create Solana Dapp](https://github.com/solana-foundation/create-solana-dapp)
-- [Account Macro Constraints](https://docs.rs/anchor-lang/latest/anchor_lang/derive.Accounts.html#constraints)
-- [Solana Developers Courses](https://solana.com/developers/courses)
-
------
-
-### Need help?
->[!TIP]
->If you have any questions, feel free to reach out to us on [Discord](https://discord.gg/z3JVuZyFnp).
+This project demonstrates a practical application of Solana's Anchor framework for building secure and efficient on-chain programs. The use of PDAs for deterministic account addressing and the implementation of robust input validation and ownership checks are key aspects of its design.
