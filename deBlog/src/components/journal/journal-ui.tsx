@@ -14,14 +14,7 @@ import {
 } from './journal-data-access'
 import { Entry } from '../../../clients/js/src/generated'
 import { useWalletUi } from '@wallet-ui/react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function JournalButtons({ address }: { address: Address }) {
   return (
@@ -156,11 +149,6 @@ function ModalEditEntry({ address, entry }: { address: Address; entry: { data: E
   return (
     <AppModal
       title="Edit Journal Entry"
-      trigger={
-        <Button variant="ghost" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-      }
       submitDisabled={!mood || !weather || !message || mutation.isPending}
       submitLabel="Save"
       submit={() =>
