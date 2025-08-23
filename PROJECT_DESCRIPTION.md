@@ -1,6 +1,6 @@
 # Project Description
 
-**Deployed Frontend URL:** [TODO: Link to your deployed frontend]
+**Deployed Frontend URL:** https://de-journal.vercel.app/
 
 **Solana Program ID:** GbEwy5B5fr4uZGAVr6GhouFQVUuDvqiscQEBeFb94wSn
 
