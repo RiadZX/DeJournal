@@ -1,3 +1,5 @@
+'use client'
+
 import { UiWalletAccount, useWalletAccountTransactionSendingSigner, useWalletUi } from '@wallet-ui/react'
 
 export function useWalletUiSigner() {
